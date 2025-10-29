@@ -12,7 +12,7 @@ const firebaseConfig = {
   apiKey: "AIzaSyABWddYGFzbKtaUmVes8JJEDOH5QMy1hLY",
   authDomain: "my-conceptual-session9.firebaseapp.com",
   projectId: "my-conceptual-session9",
-  storageBucket: "my-conceptual-session9.firebasestorage.app",
+  storageBucket: "my-conceptual-session9.appspot.com", // ✅ ঠিক করা হলো
   messagingSenderId: "512723641151",
   appId: "1:512723641151:web:08df2a4daaf2ecd234698a"
 };
@@ -22,3 +22,4 @@ const app = initializeApp(firebaseConfig);
 
 // Initialize Firebase Authentication and get a reference to the service
 export const auth = getAuth(app);
+

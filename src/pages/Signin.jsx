@@ -3,14 +3,16 @@ import { Link } from "react-router";
 import MyContainer from "../components/MyContainer";
 import { FaEye } from "react-icons/fa";
 import { IoEyeOff } from "react-icons/io5";
-import {
+import{
   GoogleAuthProvider,
-  signInWithEmailAndPassword,
-  signInWithPopup,
-  signOut
+  signInWithEmailAndPassword, 
+  signInWithPopup, 
+  signOut,
 } from "firebase/auth";
 import { auth } from "../firebase/firebase.config";
 import { toast } from "react-toastify";
+
+
 
 
 const googleProvider = new GoogleAuthProvider();
@@ -25,7 +27,6 @@ const Signin = () => {
     const password = e.target.password?.value;
     console.log({email, password});
     signInWithEmailAndPassword(auth, email, password)
-    
     .then((res) => {
       console.log(res);
       setUser(res.user);
@@ -39,29 +40,27 @@ const Signin = () => {
   
 
   const handleGoogleSignin = () => {
-     console.log("google signin");
     signInWithPopup(auth, googleProvider)
       .then((res) => {
-        console.log(res);
-        setUser(res.user);
-        toast.success("Signin successful");
-      })
-      .catch((e) => {
-        console.log(e);
-        toast.error(e.message);
-      });
+      console.log(res);
+      setUser(res.user);
+      toast.success("Signin successful");
+    })
+    .catch((e) => {
+      console.log(e);
+      toast.error(e.message);
+    });
   };
 
   const handleSignout = () => {
     signOut(auth)
     .then(() => {
-      toast.success("Signout Successful");
-      setUser(null);
-
-    })
-    .catch((e) =>{
-      toast.error(e.message);
-    })
+  toast.success("signout successful");
+  setUser(null);
+})
+.catch((e) => {
+toast.error(e.message);
+});
   };
 
   console.log(user);
@@ -94,10 +93,14 @@ const Signin = () => {
              <div className="text-center space-y-3">
               <img
                src={user?.photoURL || "https://via.placeholder.com/88"}
-                alt="" />
-                <h2 className="text-xl font-semibold">{user?.email}</h2>
-                <button onClick={handleSignout}>Sign Out</button>
-
+               className="h-20 w-20 rounded-full mx-auto"
+                alt=""
+                 />
+                <h2 className="text-xl font-semibold">{user?. displayName}</h2>
+                <p className="text-white/80">{user?. email}</p>
+                <button onClick={handleSignout} className="my-btn">
+                Sign Out
+                </button>
              </div>
               ) : (
               <form onSubmit={handleSignin} className="space-y-5">
