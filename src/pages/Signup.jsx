@@ -3,7 +3,7 @@ import { Link } from "react-router";
 import { FaEye } from "react-icons/fa";
 import { IoEyeOff } from "react-icons/io5";
 import MyContainer from "../components/MyContainer";
-import { createUserWithEmailAndPassword } from "firebase/auth";
+import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { auth } from "../firebase/firebase.config";
 import { toast } from "react-toastify";
 import { useState } from "react";
@@ -16,18 +16,21 @@ const Signup = () => {
 
   const handleSignup = (e) => {
     e.preventDefault();
+    const displayName = e.target.name?.value;
+    const photoURL = e.target.photo?.value;
     const email = e.target.email?.value;
     const password = e.target.password?.value;
 
-    console.log("signup function entered", { email, password });
-    console.log(password.length);
-    if (password.length < 6) {
-      toast.error("Password should be at least 6 digit");
-      return;
-    }
+    console.log("signup function entered", { email, displayName, photoURL, password });
+ 
+    // console.log(password.length);
+    // if (password.length < 6) {
+    //   toast.error("Password should be at least 6 digit");
+    //   return;
+    // }
 
     const regExp =
-      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#^()\-_=+])[A-Za-z\d@$!%*?&#^()\-_=+]{6,}$/;
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#^()\-_=+])[A-Za-z\d@$!%*?&#^()\-_=+]{8,}$/;
 
     console.log(regExp.test(password));
 
@@ -39,17 +42,25 @@ const Signup = () => {
     }
 
     createUserWithEmailAndPassword(auth, email, password)
+    .then((res) =>{
+      updateProfile(res.user,{
+        displayName,
+        photoURL,
+      })
       .then((res) => {
-        console.log(res);
+        console.log(res)
         toast.success("Signup successful");
       })
       .catch((e) => {
+        toast.error(e.message);
+      });
+    })
+       .catch((e) => {
         console.log(e);
-        
         console.log(e.code);
-        if (e.code =="auth/email-already-in-use"){
-          toast.error("user already exist in database."
-            
+        if (e.code ==="auth/email-already-in-use"){
+          toast.error(
+            "user already exist in database. hobe na"
           );
         } else if (e.code === "auth/weak-password") {
           toast.error("Bhai tomake at least 6 ta digit er pass dite hobe");
@@ -100,6 +111,27 @@ const Signup = () => {
             </h2>
 
             <form onSubmit={handleSignup} className="space-y-4">
+
+              <div>
+                <label className="block text-sm font-medium mb-1">Name</label>
+                <input
+                  type="text"
+                  name="name"
+                  placeholder="Mizanur Rahman"
+                  className="input input-bordered w-full bg-white/20 text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-pink-400"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1">Photo</label>
+                <input
+                  type="text"
+                  name="photo"
+                  placeholder="Your photo URL here"
+                  className="input input-bordered w-full bg-white/20 text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-pink-400"
+                />
+              </div>
+
               <div>
                 <label className="block text-sm font-medium mb-1">Email</label>
                 <input
@@ -109,6 +141,7 @@ const Signup = () => {
                   className="input input-bordered w-full bg-white/20 text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-pink-400"
                 />
               </div>
+
 
               <div className="relative">
                 <label className="block text-sm font-medium mb-1">

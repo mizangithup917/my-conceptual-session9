@@ -4,6 +4,7 @@ import MyContainer from "../components/MyContainer";
 import { FaEye } from "react-icons/fa";
 import { IoEyeOff } from "react-icons/io5";
 import{
+  GithubAuthProvider,
   GoogleAuthProvider,
   signInWithEmailAndPassword, 
   signInWithPopup, 
@@ -16,10 +17,15 @@ import { toast } from "react-toastify";
 
 
 const googleProvider = new GoogleAuthProvider();
+const githubprovider = new GithubAuthProvider();
+
+
 
 const Signin = () => { 
   const [user, setUser] = useState(null);
   const [show, setShow] = useState(false);
+
+  // Signin handle//
 
   const handleSignin = (e) => {
     e.preventDefault();
@@ -38,7 +44,7 @@ const Signin = () => {
     });
   };
   
-
+// Google Signin Handle/
   const handleGoogleSignin = () => {
     signInWithPopup(auth, googleProvider)
       .then((res) => {
@@ -52,6 +58,8 @@ const Signin = () => {
     });
   };
 
+  // Signout Handle/
+
   const handleSignout = () => {
     signOut(auth)
     .then(() => {
@@ -62,6 +70,20 @@ const Signin = () => {
 toast.error(e.message);
 });
   };
+
+// Github handle/
+const handleGithubSignin = () =>{
+  signInWithPopup(auth, githubprovider)
+    .then((res) => {
+      console.log(res);
+      setUser(res.user);
+      toast.success("Signin successful");
+    })
+    .catch((e) => {
+      console.log(e);
+      toast.error(e.message);
+    });
+};
 
   console.log(user);
 
@@ -156,6 +178,20 @@ toast.error(e.message);
                     className="w-5 h-5"
                   />
                   Continue with Google
+                </button>
+                {/* Github Signin */}
+
+                <button
+                  type="button"
+                  onClick={handleGithubSignin}
+                  className="flex items-center justify-center gap-3 bg-white text-gray-800 px-5 py-2 rounded-lg w-full font-semibold hover:bg-gray-100 transition-colors cursor-pointer"
+                >
+                  <img
+                    src="https://img.icons8.com/ios-glyphs/30/github.png"
+                    alt="google"
+                    className="w-5 h-5"
+                  />
+                  Continue with Github
                 </button>
 
                 <p className="text-center text-sm text-white/80 mt-3">
