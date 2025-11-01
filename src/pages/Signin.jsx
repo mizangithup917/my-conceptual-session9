@@ -1,40 +1,43 @@
-import React, { useState } from "react";
+import React, { useContext, useRef, useState } from "react";
 import { Link } from "react-router";
 import MyContainer from "../components/MyContainer";
 import { FaEye } from "react-icons/fa";
 import { IoEyeOff } from "react-icons/io5";
-import{
-  GithubAuthProvider,
-  GoogleAuthProvider,
-  signInWithEmailAndPassword, 
-  signInWithPopup, 
-  signOut,
-} from "firebase/auth";
-import { auth } from "../firebase/firebase.config";
 import { toast } from "react-toastify";
-
-
-
-
-const googleProvider = new GoogleAuthProvider();
-const githubprovider = new GithubAuthProvider();
+import { AuthContext } from "../context/AuthContext";
 
 
 
 const Signin = () => { 
-  const [user, setUser] = useState(null);
+  // const [user,setUser] = useState(null);
   const [show, setShow] = useState(false);
+  const {
+        signInWithEmailAndPasswordFunc,
+        signInWithEmailFunc,
+        signInWithGithubFunc,
+        signoutUserFunc,
+        sendPassResetEmailFunc,
+        user,
+        setUser,
+   }= useContext(AuthContext);
 
-  // Signin handle//
+  const emailRef = useRef(null);
 
+  //const[email, setEmail]=useState (null);
+// signin handle
   const handleSignin = (e) => {
     e.preventDefault();
     const email = e.target.email?.value;
     const password = e.target.password?.value;
     console.log({email, password});
-    signInWithEmailAndPassword(auth, email, password)
+    signInWithEmailAndPasswordFunc(email, password)
     .then((res) => {
       console.log(res);
+      if (!res.user?.emailVerified) {
+        toast.error("your email is not verified.");
+        return;
+      }
+      // console.log(res);
       setUser(res.user);
       toast.success("Signin successful");
     })
@@ -46,7 +49,8 @@ const Signin = () => {
   
 // Google Signin Handle/
   const handleGoogleSignin = () => {
-    signInWithPopup(auth, googleProvider)
+    console.log("google signin");
+    signInWithEmailFunc()
       .then((res) => {
       console.log(res);
       setUser(res.user);
@@ -61,7 +65,7 @@ const Signin = () => {
   // Signout Handle/
 
   const handleSignout = () => {
-    signOut(auth)
+    signoutUserFunc()
     .then(() => {
   toast.success("signout successful");
   setUser(null);
@@ -72,8 +76,8 @@ toast.error(e.message);
   };
 
 // Github handle/
-const handleGithubSignin = () =>{
-  signInWithPopup(auth, githubprovider)
+  const handleGithubSignin = () =>{
+  signInWithGithubFunc()
     .then((res) => {
       console.log(res);
       setUser(res.user);
@@ -83,9 +87,21 @@ const handleGithubSignin = () =>{
       console.log(e);
       toast.error(e.message);
     });
-};
+  };
 
-  console.log(user);
+const handleForgotPassword = ()=>{
+console.log();
+const email = emailRef.current.value;
+  sendPassResetEmailFunc(email)
+  .then((res) => {
+    toast.success("Check your email to reset password");
+  })
+  .catch ((e) =>{
+    toast.error(e.message);
+  });
+  }
+
+  // console.log(user);
 
 
   return (
@@ -135,6 +151,7 @@ const handleGithubSignin = () =>{
                   <input
                     type="email"
                     name="email"
+                    ref={emailRef}
                     placeholder="example@email.com"
                     className="input input-bordered w-full bg-white/20 text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-blue-400"
                   />
@@ -148,11 +165,16 @@ const handleGithubSignin = () =>{
                     placeholder="••••••••"
                     className="input input-bordered w-full bg-white/20 text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-blue-400"
                   />
-                  <span onClick={()=> setShow(!show)} className="absolute right-[8px] top-[36px] cursor-pointer z-50">
+                  <span onClick={()=> setShow(!show)} className="absolute right-5 bottom-2.5 cursor-pointer z-50">
                   {show ? <FaEye/> : <IoEyeOff/>}
                   </span>
-                  
                 </div>
+
+                  <div className="relative">
+                    <button className="bg-white w-50 h-10 rounded-sm text-blue-700 hover:underline hover:bg-gray-200 cursor-pointer font-semibold" onClick={handleForgotPassword}>Forger password</button>
+                    <img width="25" height="25"  className="absolute left-41 bottom-2 " src="https://img.icons8.com/ios-glyphs/30/forgot-password.png" alt="forgot-password"/>
+                  </div>
+                
 
                 <button type="submit" 
                  className="my-btn">

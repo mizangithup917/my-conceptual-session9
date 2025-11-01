@@ -3,16 +3,23 @@ import { Link } from "react-router";
 import { FaEye } from "react-icons/fa";
 import { IoEyeOff } from "react-icons/io5";
 import MyContainer from "../components/MyContainer";
-import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
-import { auth } from "../firebase/firebase.config";
 import { toast } from "react-toastify";
-import { useState } from "react";
+import { useContext, useState } from "react";
+import { AuthContext } from "../context/AuthContext";
+
 
 
 
 
 const Signup = () => {
  const [show, setShow] = useState(false);
+ const {
+  createUserWithEmailAndPasswordFunc,
+  updateProfileFunc,
+  sendEmailVerificationFunc,
+  }= useContext(AuthContext);
+
+  
 
   const handleSignup = (e) => {
     e.preventDefault();
@@ -20,6 +27,8 @@ const Signup = () => {
     const photoURL = e.target.photo?.value;
     const email = e.target.email?.value;
     const password = e.target.password?.value;
+
+    
 
     console.log("signup function entered", { email, displayName, photoURL, password });
  
@@ -40,22 +49,32 @@ const Signup = () => {
       );
       return;
     }
-
-    createUserWithEmailAndPassword(auth, email, password)
+    // 1st step : Create user
+    // createUserWithEmailAndPassword(auth, email, password)
+    createUserWithEmailAndPasswordFunc(email, password)
     .then((res) =>{
-      updateProfile(res.user,{
-        displayName,
-        photoURL,
-      })
-      .then((res) => {
+    // 2nd step:Update profile
+     updateProfileFunc(displayName,photoURL)
+      .then(() => {
         console.log(res)
-        toast.success("Signup successful");
+        // 3rd step: Email verification
+        sendEmailVerificationFunc()
+        .then(res=>{
+          console.log(res)
+          toast.success(
+            "Signup successful. Check your email to validate your account"
+          );
+        })
+        .catch(e=> {
+          console.log(e);
+          toast.error(e.message);
+        });
       })
       .catch((e) => {
         toast.error(e.message);
       });
     })
-       .catch((e) => {
+      .catch((e) => {
         console.log(e);
         console.log(e.code);
         if (e.code ==="auth/email-already-in-use"){
