@@ -1,5 +1,5 @@
 import React, { useContext, useRef, useState } from "react";
-import { Link } from "react-router";
+import { Link, useLocation, useNavigate } from "react-router";
 import MyContainer from "../components/MyContainer";
 import { FaEye } from "react-icons/fa";
 import { IoEyeOff } from "react-icons/io5";
@@ -15,11 +15,19 @@ const Signin = () => {
         signInWithEmailAndPasswordFunc,
         signInWithEmailFunc,
         signInWithGithubFunc,
-        signoutUserFunc,
         sendPassResetEmailFunc,
-        user,
+        setLoading,
         setUser,
+        user,        
    }= useContext(AuthContext);
+   const location = useLocation();
+   const form = location.state || "/";
+   const navigate = useNavigate();
+
+   if (user) {
+    navigate("/");
+    return;
+   }
 
   const emailRef = useRef(null);
 
@@ -33,6 +41,8 @@ const Signin = () => {
     signInWithEmailAndPasswordFunc(email, password)
     .then((res) => {
       console.log(res);
+       setLoading(false);
+
       if (!res.user?.emailVerified) {
         toast.error("your email is not verified.");
         return;
@@ -40,6 +50,7 @@ const Signin = () => {
       // console.log(res);
       setUser(res.user);
       toast.success("Signin successful");
+      navigate(form);
     })
     .catch((e) => {
       console.log(e);
@@ -52,8 +63,10 @@ const Signin = () => {
     console.log("google signin");
     signInWithEmailFunc()
       .then((res) => {
+      setLoading(false);
       console.log(res);
       setUser(res.user);
+      navigate(form);
       toast.success("Signin successful");
     })
     .catch((e) => {
@@ -64,23 +77,16 @@ const Signin = () => {
 
   // Signout Handle/
 
-  const handleSignout = () => {
-    signoutUserFunc()
-    .then(() => {
-  toast.success("signout successful");
-  setUser(null);
-})
-.catch((e) => {
-toast.error(e.message);
-});
-  };
+
 
 // Github handle/
   const handleGithubSignin = () =>{
   signInWithGithubFunc()
     .then((res) => {
+      setLoading(false);
       console.log(res);
       setUser(res.user);
+      navigate(form);
       toast.success("Signin successful");
     })
     .catch((e) => {
@@ -94,6 +100,7 @@ console.log();
 const email = emailRef.current.value;
   sendPassResetEmailFunc(email)
   .then((res) => {
+    setLoading(false);
     toast.success("Check your email to reset password");
   })
   .catch ((e) =>{
@@ -105,7 +112,7 @@ const email = emailRef.current.value;
 
 
   return (
-    <div className="min-h-[calc(100vh-20px)] flex items-center justify-center bg-gradient-to-br from-blue-500 via-indigo-600 to-purple-600 relative overflow-hidden">
+    <div className="min-h-[calc(120vh-20px)] flex items-center justify-center bg-gradient-to-br from-blue-500 via-indigo-600 to-purple-600 relative overflow-hidden">
       {/* Animated glow orbs */}
       <div className="absolute inset-0">
         <div className="absolute w-72 h-72 bg-purple-400/30 rounded-full blur-xl top-10 left-10 animate-pulse"></div>
@@ -127,20 +134,6 @@ const email = emailRef.current.value;
 
           {/* Login card */}
           <div className="w-full max-w-md backdrop-blur-lg bg-white/10 border border-white/20 shadow-2xl rounded-2xl p-8">
-             {user ? (
-             <div className="text-center space-y-3">
-              <img
-               src={user?.photoURL || "https://via.placeholder.com/88"}
-               className="h-20 w-20 rounded-full mx-auto"
-                alt=""
-                 />
-                <h2 className="text-xl font-semibold">{user?. displayName}</h2>
-                <p className="text-white/80">{user?. email}</p>
-                <button onClick={handleSignout} className="my-btn">
-                Sign Out
-                </button>
-             </div>
-              ) : (
               <form onSubmit={handleSignin} className="space-y-5">
                 <h2 className="text-2xl font-semibold mb-2 text-center text-white">
                   Sign In
@@ -195,7 +188,7 @@ const email = emailRef.current.value;
                   className="flex items-center justify-center gap-3 bg-white text-gray-800 px-5 py-2 rounded-lg w-full font-semibold hover:bg-gray-100 transition-colors cursor-pointer"
                 >
                   <img
-                    src="https://www.svgrepo.com/show/475656/google-color.svg"
+                    src="https://via.placeholder.com/88"
                     alt="google"
                     className="w-5 h-5"
                   />
@@ -228,7 +221,7 @@ const email = emailRef.current.value;
                 </p>
 
               </form>
-             )}
+          
           </div>
         </div>
       </MyContainer>

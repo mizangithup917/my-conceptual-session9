@@ -1,5 +1,5 @@
 
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { FaEye } from "react-icons/fa";
 import { IoEyeOff } from "react-icons/io5";
 import MyContainer from "../components/MyContainer";
@@ -17,7 +17,11 @@ const Signup = () => {
   createUserWithEmailAndPasswordFunc,
   updateProfileFunc,
   sendEmailVerificationFunc,
+  setLoading,
+  signoutUserFunc,
+  setUser,
   }= useContext(AuthContext);
+  const navigate = useNavigate();
 
   
 
@@ -27,6 +31,7 @@ const Signup = () => {
     const photoURL = e.target.photo?.value;
     const email = e.target.email?.value;
     const password = e.target.password?.value;
+    
 
     
 
@@ -60,13 +65,20 @@ const Signup = () => {
         // 3rd step: Email verification
         sendEmailVerificationFunc()
         .then(res=>{
-          console.log(res)
+          console.log(res);
+          setLoading(false);
+          
+          // Signout user
+          signoutUserFunc().then(() => {
           toast.success(
-            "Signup successful. Check your email to validate your account"
+            "Signup successful. Check your email to validate your account."
           );
+          setUser(null);
+          navigate("/signin")
+        });
         })
         .catch(e=> {
-          console.log(e);
+          console.log
           toast.error(e.message);
         });
       })
@@ -160,8 +172,6 @@ const Signup = () => {
                   className="input input-bordered w-full bg-white/20 text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-pink-400"
                 />
               </div>
-
-
               <div className="relative">
                 <label className="block text-sm font-medium mb-1">
                   Password
@@ -175,14 +185,11 @@ const Signup = () => {
                 <span onClick={()=> setShow(!show)} className="absolute right-[8px] top-[36px] cursor-pointer z-50">
                   {show ? <FaEye/> : <IoEyeOff/>}
                 </span>
-                
               </div>
-
               <button type="submit"
                className="my-btn ">
                 Sign Up
               </button>
-
               <div className="text-center mt-3">
                 <p className="text-sm text-white/80">
                   Already have an account?{" "}
